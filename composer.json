@@ -1,0 +1,18 @@
+{
+  "name": "magalhaes-123/boa-conta-sistema",
+  "description": "Sistema Universal de Gestão Empresarial - BOA CONTA",
+  "type": "project",
+  "require": {
+    "php": ">=8.0",
+    "ext-pdo": "*",
+    "ext-json": "*",
+    "slim/slim": "^4.0",
+    "slim/psr7": "^1.6",
+    "monolog/monolog": "^2.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "BoaConta\\": "src/"
+    }
+  }
+}

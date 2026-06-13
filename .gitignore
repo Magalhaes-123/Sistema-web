@@ -1,0 +1,24 @@
+# PHP
+*.log
+/vendor/
+.env
+.env.local
+*.swp
+*.swo
+*~
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Composer
+composer.lock
+
+# Cache
+/cache/*
+/tmp/*
+!cache/.gitkeep
+!tmp/.gitkeep
