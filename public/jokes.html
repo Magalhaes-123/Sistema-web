@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="pt_PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerador de Piadas - BOA CONTA</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .joke-box {
+            background: #f8f9fa;
+            border-left: 5px solid #667eea;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 25px 0;
+            min-height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .joke-box.loading {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .joke-text {
+            font-size: 1.3em;
+            color: #333;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .joke-source {
+            font-size: 0.9em;
+            color: #999;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 25px 0;
+        }
+
+        .controls select,
+        .controls input {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #764ba2;
+            color: white;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #6a4196;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(118, 75, 162, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .error {
+            background: #fee;
+            border-left-color: #c33;
+            color: #c33;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .success {
+            background: #efe;
+            border-left-color: #3c3;
+            color: #3c3;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .jokes-list {
+            margin-top: 20px;
+        }
+
+        .joke-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .joke-item p {
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .joke-item .source {
+            font-size: 0.85em;
+            color: #999;
+            margin-top: 10px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>😂 Gerador de Piadas</h1>
+            <p>Divirta-se com piadas aleatórias de múltiplas fontes</p>
+        </div>
+
+        <div id="message"></div>
+
+        <div id="jokeBox" class="joke-box" style="display: none;">
+            <p id="jokeText" class="joke-text"></p>
+            <p id="jokeSource" class="joke-source"></p>
+        </div>
+
+        <div class="controls">
+            <div>
+                <label for="source">Fonte:</label>
+                <select id="source">
+                    <option value="official">Official Joke API</option>
+                    <option value="jokeapi">JokeAPI</option>
+                    <option value="chuck_norris">Chuck Norris</option>
+                </select>
+            </div>
+            <div>
+                <label for="count">Quantidade:</label>
+                <input type="number" id="count" min="1" max="20" value="5">
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button class="btn-primary" onclick="getRandomJoke()">🎲 Piada Aleatória</button>
+            <button class="btn-secondary" onclick="getRandomSource()">🌍 Qualquer Fonte</button>
+            <button class="btn-secondary" onclick="getMultipleJokes()">📚 Múltiplas Piadas</button>
+        </div>
+
+        <div id="jokesList" class="jokes-list"></div>
+    </div>
+
+    <script>
+        const API_URL = '/api/jokes.php';
+
+        async function getRandomJoke() {
+            const source = document.getElementById('source').value;
+            await fetchJoke(`${API_URL}?action=random&source=${source}`);
+        }
+
+        async function getRandomSource() {
+            await fetchJoke(`${API_URL}?action=random-source`);
+        }
+
+        async function getMultipleJokes() {
+            const source = document.getElementById('source').value;
+            const count = document.getElementById('count').value;
+            await fetchMultiple(`${API_URL}?action=multiple&source=${source}&count=${count}`);
+        }
+
+        async function fetchJoke(url) {
+            const jokeBox = document.getElementById('jokeBox');
+            const jokesList = document.getElementById('jokesList');
+            const message = document.getElementById('message');
+
+            jokeBox.classList.add('loading');
+            jokeBox.style.display = 'block';
+            jokesList.innerHTML = '';
+            message.innerHTML = '';
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Erro ao buscar piada');
+                }
+
+                const joke = data.data;
+                document.getElementById('jokeText').textContent = joke.joke;
+                document.getElementById('jokeSource').textContent = `Fonte: ${joke.source} | ID: ${joke.id || 'N/A'}`;
+                jokeBox.classList.remove('loading');
+
+            } catch (error) {
+                jokeBox.style.display = 'none';
+                message.innerHTML = `<div class="error">❌ ${error.message}</div>`;
+            }
+        }
+
+        async function fetchMultiple(url) {
+            const jokeBox = document.getElementById('jokeBox');
+            const jokesList = document.getElementById('jokesList');
+            const message = document.getElementById('message');
+
+            jokeBox.style.display = 'none';
+            jokesList.innerHTML = '<div class="loading-spinner"></div> Carregando piadas...';
+            message.innerHTML = '';
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Erro ao buscar piadas');
+                }
+
+                jokesList.innerHTML = `<div class="success">✅ ${data.count} piada(s) carregada(s)</div>`;
+                
+                data.data.forEach((joke, index) => {
+                    const jokeItem = document.createElement('div');
+                    jokeItem.className = 'joke-item';
+                    jokeItem.innerHTML = `
+                        <strong>#${index + 1}</strong>
+                        <p>${joke.joke}</p>
+                        <div class="source">Fonte: ${joke.source}</div>
+                    `;
+                    jokesList.appendChild(jokeItem);
+                });
+
+            } catch (error) {
+                jokesList.innerHTML = '';
+                message.innerHTML = `<div class="error">❌ ${error.message}</div>`;
+            }
+        }
+
+        // Carregar uma piada ao abrir a página
+        window.addEventListener('load', getRandomJoke);
+    </script>
+</body>
+</html>
